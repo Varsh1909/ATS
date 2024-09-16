@@ -1,0 +1,171 @@
+/* General styles for the app */
+.App {
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-family: 'Arial', sans-serif;
+  padding: 20px;
+}
+
+/* Dark mode specific styles */
+.dark-mode {
+  background-color: #282c34;
+  color: rgb(62, 204, 230);
+}
+
+.light-mode {
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+/* Styling for header */
+.App-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+/* Toggle button for dark/light mode */
+.toggle-btn {
+  background-color: #61dafb;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  color: white;
+  font-size: 14px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-btn:hover {
+  background-color: #21a1f1;
+}
+
+/* Input fields */
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  max-width: 400px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+  border-color: #61dafb;
+  outline: none;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+  text-align: left;
+  font-size: 14px;
+}
+
+/* Form button */
+button[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+button[type="submit"]:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Form container */
+form {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  max-width: 800px;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+th {
+  background-color: #61dafb;
+  color: white;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+tr:nth-child(odd) {
+  background-color: #e0e0e0;
+}
+
+tr:hover {
+  background-color: #ddd;
+}
+
+/* Dark mode table adjustments */
+.dark-mode table {
+  color: white;
+}
+
+.dark-mode th {
+  background-color: #444;
+}
+
+.dark-mode tr:nth-child(even) {
+  background-color: #333;
+}
+
+.dark-mode tr:nth-child(odd) {
+  background-color: #3a3a3a;
+}
+
+.dark-mode tr:hover {
+  background-color: #555;
+}
+
+/* Center the table in the container */
+table {
+  margin: 20px auto;
+}
+
+h1,
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
