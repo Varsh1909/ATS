@@ -3,4 +3,7 @@
     "cors": "^2.8.5",
     "express": "^4.19.2"
   }
+  "scripts":{
+    "build": "echo 'No build required for backend'"
+  }
 }
