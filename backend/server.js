@@ -9,15 +9,15 @@ app.use(express.json());
 
 app.post('/rank-candidates', (req, res) => {
     const { requiredRole, topN, skillsWeight } = req.body;
-    const mainDataFilePath = 'E:\\ats\\skills_and_salaries_categories_p.csv';
-    const jobRolesDataFilePath = 'E:\\ats\\job_skills.csv';
-    const testDataFilePath = 'E:\\ats\\FinalResult.csv';
+    const mainDataFilePath = './skills_and_salaries_categories_p.csv';
+    const jobRolesDataFilePath = './job_skills.csv';
+    const testDataFilePath = './FinalResult.csv';
 
     console.log(`Received request for role: ${requiredRole}, topN: ${topN}, skillsWeight: ${skillsWeight}`);
 
     const pythonArgs = [
         '-u',
-        'candidate_ranking.py',  // Change this line
+        'candidate_ranking.py',  // Python script that performs the ranking
         requiredRole,
         mainDataFilePath,
         jobRolesDataFilePath,
@@ -49,7 +49,7 @@ app.post('/rank-candidates', (req, res) => {
         }
 
         try {
-            // Try to parse the result
+            // Try to parse the result as JSON
             const jsonStart = result.indexOf('[');
             const jsonEnd = result.lastIndexOf(']');
             if (jsonStart !== -1 && jsonEnd !== -1) {

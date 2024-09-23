@@ -1,0 +1,34 @@
+# File: ats-frontend-service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ats-frontend-service
+spec:
+  selector:
+    app: ats-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ats-frontend-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /()(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: ats-frontend-service
+            port: 
+              number: 80

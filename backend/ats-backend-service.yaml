@@ -1,0 +1,34 @@
+# File: ats-backend-service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ats-backend-service
+spec:
+  selector:
+    app: ats-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3001
+  type: ClusterIP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ats-backend-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /api(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: ats-backend-service
+            port: 
+              number: 80
