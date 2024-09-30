@@ -1,0 +1,23 @@
+version: '3'
+services:
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile.backend
+    ports:
+      - "3001:3001"
+    depends_on:
+      - python-service
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - PYTHON_SERVICE_URL=http://python-service:5000
+
+  python-service:
+    build:
+      context: ./
+      dockerfile: Dockerfile.python
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app

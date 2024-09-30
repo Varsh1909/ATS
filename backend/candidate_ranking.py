@@ -11,8 +11,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 import warnings
 from sklearn.impute import SimpleImputer
+from flask import Flask, request, jsonify
 
 warnings.filterwarnings("ignore", category=FutureWarning, module='sklearn')
+
+app = Flask(__name__)
 
 def load_and_prepare_data(file_path, is_job_roles=False):
     try:
@@ -189,22 +192,21 @@ def predict_and_rank(class_model, reg_model, new_data, required_role, extracted_
 
     return top_candidates[['candidate_id', 'full_name', 'experience', 'skills', 'profile_title', 'Classification_Prediction', 'Weighted_Score', 'Predicted_Salary']]
 
+@app.route('/rank-candidates', methods=['POST'])
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Rank candidates for a given role")
-    parser.add_argument("required_role", help="The required role for ranking candidates")
-    parser.add_argument("main_data_file_path", help="Path to the main data file")
-    parser.add_argument("job_roles_data_file_path", help="Path to the job roles data file")
-    parser.add_argument("test_data_file_path", help="Path to the test data file")
-    parser.add_argument("--top_n", type=int, default=5, help="Number of top candidates to return")
-    parser.add_argument("--skills_weight", type=float, default=0.6, help="Weight for skills in the ranking")
+def rank_candidates():
+    data=request.json
+    required_role = data['requiredRole']
+    top_n = data['topN']
+    skills_weight = data['skillsWeight']
+    main_data_file_path = data['mainDataFilePath']
+    job_roles_data_file_path = data['jobRolesDataFilePath']
+    test_data_file_path = data['testDataFilePath']
 
-    args = parser.parse_args()
-    
-    print(f"Processing request for role: {args.required_role}, top {args.top_n} candidates, skills weight: {args.skills_weight}")
+    print(f"Processing request for role: {required_role}, top {top_n} candidates, skills weight: {skills_weight}")
 
-    main_df = load_and_prepare_data(args.main_data_file_path)
-    job_roles_df = load_and_prepare_data(args.job_roles_data_file_path, is_job_roles=True)
+    main_df = load_and_prepare_data(main_data_file_path)
+    job_roles_df = load_and_prepare_data(job_roles_data_file_path, is_job_roles=True)
 
     main_df = engineer_features(main_df)
     job_roles_df = engineer_features(job_roles_df)
@@ -214,18 +216,18 @@ if __name__ == "__main__":
     trained_class_model, trained_reg_model = train_models(main_df, job_roles_df)
 
     if trained_class_model is None or trained_reg_model is None:
-        print("Error: Failed to train models. Exiting.")
-        sys.exit(1)
+        return jsonify({"error": "Failed to train models"}), 500
 
-    new_df = load_and_prepare_data(args.test_data_file_path)
+    new_df = load_and_prepare_data(test_data_file_path)
     new_df = engineer_features(new_df)
 
-    results = predict_and_rank(trained_class_model, trained_reg_model, new_df, args.required_role, extracted_skills, args.skills_weight, args.top_n)
+    results = predict_and_rank(trained_class_model, trained_reg_model, new_df, required_role, extracted_skills, skills_weight, top_n)
 
     if results is not None and not results.empty:
         results_dict = results.to_dict(orient='records')
-        print(json.dumps(results_dict, indent=4))
+        return jsonify(results_dict)
     else:
-        print("No results found or an error occurred.")
-    
-    print("Script execution completed successfully.")
+        return jsonify({"error": "No results found or an error occurred"}), 404
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)

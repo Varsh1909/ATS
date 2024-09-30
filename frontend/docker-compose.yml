@@ -1,0 +1,16 @@
+version: '3'
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"  # Nginx serving the frontend on port 80
+    # volumes:
+    #   - ./build:/usr/share/nginx/html  # Volume for the built frontend files
+    networks:
+      - frontend-network
+
+networks:
+  frontend-network:
+    driver: bridge
