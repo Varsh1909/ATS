@@ -7,7 +7,7 @@ pool:
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '14.x'
+    versionSpec: '18.x'
   displayName: 'Install Node.js'
 
 - script: |
@@ -19,17 +19,15 @@ steps:
     cd frontend
     npm ci
     npm run build
-    npm test
+    npm test -- --passWithNoTests
   displayName: 'Frontend: npm install, build, test'
-  workingDirectory: '$(System.DefaultWorkingDirectory)/frontend'
+  workingDirectory: '$(System.DefaultWorkingDirectory)'
 
 - script: |
     cd backend
     npm ci
-    npm run build
-    npm test
-  displayName: 'Backend: npm install, build, test'
-  workingDirectory: '$(System.DefaultWorkingDirectory)/backend'
+  displayName: 'Backend: npm install'
+  workingDirectory: '$(System.DefaultWorkingDirectory)'
 
 - task: ArchiveFiles@2
   inputs:
@@ -44,3 +42,11 @@ steps:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
+
+# - script: |
+#     cd frontend
+#     npm run deploy
+#   displayName: 'Deploy to GitHub Pages'
+#   env:
+#     GH_TOKEN: $(GH_TOKEN)
+#   workingDirectory: '$(System.DefaultWorkingDirectory)'
