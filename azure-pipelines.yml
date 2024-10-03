@@ -1,31 +1,46 @@
-# Node.js with React
-# Build a Node.js project that uses React.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
 trigger:
-- master
+- main
 
 pool:
-  vmImage: ubuntu-latest
-
-variables:
-  backendAppName: backend
-  frontendAppName: frontend
+  vmImage: 'ubuntu-latest'
 
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '20.x'
+    versionSpec: '14.x'
   displayName: 'Install Node.js'
 
 - script: |
-    cd candidate-ranking
-    npm install
-    npm run build
-  displayName: 'Install and Build Frontend (React)'
+    echo "Current directory: $(pwd)"
+    ls -R
+  displayName: 'List directory contents'
 
 - script: |
-    npm install
+    cd frontend
+    npm ci
     npm run build
-  displayName: 'Install and Build Backend (Node.js)'
+    npm test
+  displayName: 'Frontend: npm install, build, test'
+  workingDirectory: '$(System.DefaultWorkingDirectory)/frontend'
+
+- script: |
+    cd backend
+    npm ci
+    npm run build
+    npm test
+  displayName: 'Backend: npm install, build, test'
+  workingDirectory: '$(System.DefaultWorkingDirectory)/backend'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    replaceExistingArchive: true
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
