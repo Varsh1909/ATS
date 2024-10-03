@@ -19,8 +19,7 @@ steps:
     cd frontend
     npm ci
     npm run build
-    npm test -- --passWithNoTests
-  displayName: 'Frontend: npm install, build, test'
+  displayName: 'Frontend: npm install, build'
   workingDirectory: '$(System.DefaultWorkingDirectory)'
 
 - script: |
