@@ -8,27 +8,39 @@ steps:
 - task: NodeTool@0
   inputs:
     versionSpec: '14.x'
-  
+  displayName: 'Install Node.js'
+
 - script: |
+    echo "Current directory: $(pwd)"
+    ls -R
+  displayName: 'List directory contents'
+
+- script: |
+    cd frontend
     npm ci
     npm run build
     npm test
-  displayName: 'npm install, build, test'
+  displayName: 'Frontend: npm install, build, test'
+  workingDirectory: '$(System.DefaultWorkingDirectory)/frontend'
+
+- script: |
+    cd backend
+    npm ci
+    npm run build
+    npm test
+  displayName: 'Backend: npm install, build, test'
+  workingDirectory: '$(System.DefaultWorkingDirectory)/backend'
 
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
     includeRootFolder: false
-    archiveType: zip
-    archiveFileName: $(Build.ArtifactName).zip
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
     replaceExistingArchive: true
 
-- upload: $(System.ArtifactsPath)\$(Build.BuildId).zip
-  artifact: drop
-
 - task: PublishBuildArtifacts@1
-  condition: succeeded()
   inputs:
-    PathtoPublish: '$(System.ArtifactsPath)\$(Build.BuildId).zip'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'drop'
     publishLocation: 'Container'
