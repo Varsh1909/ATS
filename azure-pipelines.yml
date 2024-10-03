@@ -1,0 +1,51 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '18.x'
+  displayName: 'Install Node.js'
+
+- script: |
+    echo "Current directory: $(pwd)"
+    ls -R
+  displayName: 'List directory contents'
+
+- script: |
+    cd frontend
+    npm ci
+    npm run build
+  displayName: 'Frontend: npm install, build'
+  workingDirectory: '$(System.DefaultWorkingDirectory)'
+
+- script: |
+    cd backend
+    npm ci
+  displayName: 'Backend: npm install'
+  workingDirectory: '$(System.DefaultWorkingDirectory)'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    replaceExistingArchive: true
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+
+# - script: |
+#     cd frontend
+#     npm run deploy
+#   displayName: 'Deploy to GitHub Pages'
+#   env:
+#     GH_TOKEN: $(GH_TOKEN)
+#   workingDirectory: '$(System.DefaultWorkingDirectory)'
