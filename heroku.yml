@@ -1,8 +1,0 @@
-build:
-  docker:
-    web: backend/Dockerfile.backend  # Path to Node.js Dockerfile
-    worker: backend/Dockerfile.python  # Path to Python Dockerfile
-
-run:
-  web: cd backend && node server.js  # Run the Node.js backend
-  worker: cd backend && python candidate_ranking.py  # Run the Python service
