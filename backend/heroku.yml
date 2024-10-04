@@ -1,8 +1,0 @@
-build:
-  docker:
-    web: Dockerfile.backend  # Node.js backend
-    worker: Dockerfile.python  # Python service
-
-run:
-  web: node server.js  # Run the Node.js backend
-  worker: python candidate_ranking.py  # Run the Python service

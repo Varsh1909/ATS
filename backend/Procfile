@@ -1,2 +1,0 @@
-web: node server.js  # For the Node.js backend
-worker: python candidate_ranking.py  # For the Python service
