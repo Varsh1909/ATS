@@ -14,7 +14,7 @@ const CandidateRanking = () => {
     setLoading(true);
     setError(null);
     try {
-      //Updated the link for prod
+      //Updated the link for prod to link 
       const response = await axios.post('https://backend-backend-hntl.onrender.com/rank-candidates', {
         requiredRole,
         topN,
