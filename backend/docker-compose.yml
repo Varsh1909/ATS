@@ -2,20 +2,19 @@ version: '3'
 services:
   backend:
     build:
-      context: ./
+      context: ./  # Adjust if your Dockerfile is located elsewhere
       dockerfile: Dockerfile.backend
     ports:
       - "3001:3001"
-    depends_on:
-      - python-service
+    # Removed depends_on since the service is external
     volumes:
       - .:/usr/src/app
     environment:
-      - PYTHON_SERVICE_URL=http://python-service:5000
+      - PYTHON_SERVICE_URL=https://backend-python-service.onrender.com  # Updated to use the external URL
 
   python-service:
     build:
-      context: ./
+      context: ./  # Adjust if your Dockerfile is located elsewhere
       dockerfile: Dockerfile.python
     ports:
       - "5000:5000"
