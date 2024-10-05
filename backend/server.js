@@ -89,7 +89,7 @@ app.post('/rank-candidates', async (req, res) => {
     console.log(`Received request for role: ${requiredRole}, topN: ${topN}, skillsWeight: ${skillsWeight}`);
 
     try {
-        const response = await axios.post('http://python-service:5000/rank-candidates', {
+        const response = await axios.post('https://backend-python-service.onrender.com/rank-candidates', {
             requiredRole,
             topN,
             skillsWeight,
