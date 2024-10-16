@@ -4,9 +4,6 @@
   "private": true,
   "homepage": "https://Varsh1909.github.io/ATS",
   "dependencies": {
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -40,6 +37,9 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
     "gh-pages": "^6.1.1"
   }
 }
