@@ -28,16 +28,10 @@ jobs:
         cd frontend
         npm run build
 
-    # Login to Azure using Service Principal credentials stored in GitHub Secrets
-    - name: 'Login to Azure'
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-        
-    # Deploy frontend to Azure Web App
-    - name: 'Deploy to Azure Web App'
+    # Deploy frontend to Azure Web App using Publish Profile
+    - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'ats-frontend'  # Replace with your Azure App Service name
+        app-name: 'ats-frontend'  # Replace with your App Service name
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}  # Publish Profile Secret
         package: ./frontend/build
-        slot-name: production
