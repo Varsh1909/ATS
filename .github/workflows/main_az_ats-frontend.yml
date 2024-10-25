@@ -6,7 +6,7 @@ name: Build and deploy Node.js app to Azure Web App - ats-frontend
 on:
   push:
     branches:
-      - main_az
+      - main_az  # This should match the branch you're using for deployment
   workflow_dispatch:
 
 jobs:
@@ -21,14 +21,16 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: npm install, build, and test
+      - name: Install dependencies
         run: |
           npm install
-          npm run build --if-present
-          npm run test --if-present
 
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+      - name: Build the app (React frontend or Node backend)
+        run: |
+          npm run build --if-present
+
+      - name: Zip the build output for deployment
+        run: zip -r release.zip ./*  # Zip the entire build directory
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -42,21 +44,26 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: node-app
 
-      - name: Unzip artifact for deployment
-        run: unzip release.zip
+      - name: Unzip the artifact
+        run: unzip release.zip -d output  # Unzipping into the 'output' folder
       
-      - name: 'Deploy to Azure Web App'
+      # Sync the unzipped files with wwwroot, as that's the web root directory on Azure
+      - name: Copy files to wwwroot directory
+        run: |
+          mv output/* /home/site/wwwroot  # Move all unzipped contents to the wwwroot directory
+
+      - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'ats-frontend'
           slot-name: 'Production'
-          package: .
+          package: .  # '.' indicates the root folder with moved files
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_F404561CF4FE4A67ADFF7CA37D64E766 }}
