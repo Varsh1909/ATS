@@ -137,7 +137,7 @@ app.post('/rank-candidates', async (req, res) => {
 
         // Make a POST request to the Python Flask service
         const response = await axios.post('https://backend-python-service.onrender.com/rank-candidates', payload, {
-            timeout: 30000 // Optional: Set a timeout for the request
+            timeout: 300000 // Optional: Set a timeout for the request
         });
 
         // Forward the response from the Python service to the frontend
