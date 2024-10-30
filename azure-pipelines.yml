@@ -1,0 +1,63 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # ACR and Azure Web App names
+  ACR_NAME: '<Your_ACR_Name>'        # Replace with your Azure Container Registry name
+  FRONTEND_APP_NAME: '<Your_Frontend_App_Name>'  # Replace with your Azure Web App for frontend
+  BACKEND_APP_NAME: '<Your_Backend_App_Name>'    # Replace with your Azure Web App for backend
+  IMAGE_TAG: '$(Build.BuildId)'
+
+steps:
+- task: UseNode@1
+  inputs:
+    version: '14.x'
+  displayName: 'Install Node.js 14.x for Frontend and Backend'
+
+# Step 1: Build Frontend
+- script: |
+    cd frontend
+    npm ci
+    npm run build
+  displayName: 'Frontend - Build React Application'
+
+# Step 2: Build Backend Docker Image
+- task: Docker@2
+  inputs:
+    containerRegistry: '$(ACR_NAME)_containerConnection'  # Service connection to ACR
+    repository: 'backend-image'
+    command: 'buildAndPush'
+    Dockerfile: 'backend/Dockerfile.backend'
+    tags: |
+      $(IMAGE_TAG)
+  displayName: 'Build and Push Backend Docker Image'
+
+# Step 3: Build Python Service Docker Image
+- task: Docker@2
+  inputs:
+    containerRegistry: '$(ACR_NAME)_containerConnection'  # Service connection to ACR
+    repository: 'python-image'
+    command: 'buildAndPush'
+    Dockerfile: 'backend/Dockerfile.python'
+    tags: |
+      $(IMAGE_TAG)
+  displayName: 'Build and Push Python Service Docker Image'
+
+# Step 4: Deploy Frontend
+- task: AzureWebApp@1
+  inputs:
+    appName: $(FRONTEND_APP_NAME)
+    package: '$(System.DefaultWorkingDirectory)/frontend/build'
+  displayName: 'Deploy Frontend to Azure Web App'
+
+# Step 5: Deploy Backend
+- task: AzureWebAppContainer@1
+  inputs:
+    appName: $(BACKEND_APP_NAME)
+    containers: |
+      $(ACR_NAME).azurecr.io/backend-image:$(IMAGE_TAG)
+      $(ACR_NAME).azurecr.io/python-image:$(IMAGE_TAG)
+  displayName: 'Deploy Backend to Azure App Service using Docker Containers'
