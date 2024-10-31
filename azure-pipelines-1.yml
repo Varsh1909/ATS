@@ -31,6 +31,7 @@ steps:
 # Step 2: Deploy Frontend
 - task: AzureWebApp@1
   inputs:
+    azureSubscription: '4cd72d6a-f9fa-4350-b5b1-2463b528b598'  # Replace with your Azure subscription name or ID
     appName: $(FRONTEND_APP_NAME)
     package: '$(System.DefaultWorkingDirectory)/frontend/build'
   displayName: 'Deploy Frontend to Azure Web App'
