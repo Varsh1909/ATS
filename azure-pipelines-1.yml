@@ -43,10 +43,24 @@ steps:
     echo "Logging into Azure..."
     az login --service-principal -u $CLIENT_ID -p $CLIENT_SECRET --tenant $TENANT_ID
 
+    # Check if login was successful
+    if [ $? -ne 0 ]; then
+      echo "Failed to log into Azure. Check your credentials."
+      exit 1
+    fi
+
     # Set the subscription
+    echo "Setting Azure subscription..."
     az account set --subscription $SUBSCRIPTION_ID
 
     # Deploy to Azure Web App
     echo "Deploying to Azure Web App..."
     az webapp deploy --name $(FRONTEND_APP_NAME) --resource-group YOUR_RESOURCE_GROUP --src-path $(System.DefaultWorkingDirectory)/frontend/build --type static
+
+    # Check if the deployment was successful
+    if [ $? -ne 0 ]; then
+      echo "Deployment failed."
+      exit 1
+    fi
+
   displayName: 'Deploy Frontend to Azure Web App'
