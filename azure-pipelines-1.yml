@@ -1,0 +1,35 @@
+trigger:
+- main_az  # Change to your branch name if necessary
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # Azure Web App name
+  FRONTEND_APP_NAME: 'ats-frontend'  # Replace with your Azure Web App for frontend
+  PACKAGE_PATH: '$(System.DefaultWorkingDirectory)/frontend/build'  # Path to the build package
+
+steps:
+- task: UseNode@1
+  inputs:
+    version: '14.x'  # Keep this as is or consider upgrading to 16.x
+  displayName: 'Install Node.js 14.x for Frontend'
+
+# Step 1: Build Frontend
+- script: |
+    cd frontend
+    echo "Cleaning npm cache..."
+    npm cache clean --force  # Clean the npm cache for fresh installation
+    echo "Running npm install..."
+    npm install  # Install dependencies
+    echo "Running npm run build..."
+    npm run build  # Build the frontend application
+  displayName: 'Frontend - Build React Application'
+
+# Step 2: Deploy Frontend using Publish Profile
+- task: AzureWebApp@1
+  inputs:
+    appName: $(FRONTEND_APP_NAME)
+    publishProfile: $(AZURE_WEBAPP_PUBLISH_PROFILE)  # Use the secret for the publish profile
+    package: $(PACKAGE_PATH)  # Package path to deploy
+  displayName: 'Deploy Frontend to Azure Web App'
