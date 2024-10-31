@@ -11,37 +11,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
       - uses: actions/checkout@v4
 
-      # Step 2: Set up the Node.js environment
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'  # Specify the desired Node.js version
+          node-version: '20.x'
 
-      # Step 3: Install dependencies with --legacy-peer-deps to avoid conflicts
       - name: Install dependencies
         working-directory: frontend
-        run: npm install --legacy-peer-deps  # Bypass peer dependency conflicts
+        run: npm install --legacy-peer-deps
 
-      # Step 4: Build the frontend application
-      - name: Build the app (React frontend)
+      - name: Build the app
         working-directory: frontend
         run: npm run build
 
-      # Step 5: Zip the build output for deployment
-      - name: Zip the build output for deployment
+      - name: Zip the build output
         run: |
           cd frontend/build
-          zip -r ../../release.zip ./*  # Zip the contents of the build directory
+          zip -r ../release.zip ./*
 
-      # Step 6: Upload artifact for the deployment job
-      - name: Upload artifact for deployment job
+      - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-build-artifact
-          path: release.zip  # Path to the zip file for deployment
+          name: frontend-build
+          path: frontend/release.zip  # Adjust to match exact zip location
 
   deploy:
     runs-on: ubuntu-latest
@@ -50,27 +44,23 @@ jobs:
     environment: AZURE_WEBAPP_PUBLISH_PROFILE
 
     steps:
-      # Step 1: Download the build artifact from the previous job
-      - name: Download artifact from build job
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: frontend-build-artifact
-          path: ./  # Download to the root directory
+          name: frontend-build
+          path: ./  # Download to root
 
-      # Step 2: Unzip the artifact
-      - name: Unzip the artifact
-        run: unzip release.zip -d output  # Unzipping the release.zip file into the 'output' folder
+      - name: Unzip artifact
+        run: unzip frontend/release.zip -d output  # Adjust path if needed
 
-      # Step 3: Log in to Azure
-      - name: Log in to Azure
+      - name: Azure Login
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}  # JSON-based credentials from GitHub secrets
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # Step 4: Deploy to Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'ats-frontend'  # Replace with your Azure App Service name
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}  # The secret for the publish profile
-          package: ./output  # Path to the unzipped files
+          app-name: 'ats-frontend'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./output  # Path to unzipped output folder
