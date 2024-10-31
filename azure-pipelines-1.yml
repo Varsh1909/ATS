@@ -12,13 +12,19 @@ variables:
 steps:
 - task: UseNode@1
   inputs:
-    version: '14.x'
+    version: '14.x'  # Keep this as it is or consider upgrading to 16.x
   displayName: 'Install Node.js 14.x for Frontend'
 
 # Step 1: Build Frontend
 - script: |
     cd frontend
-    npm ci
+    echo "Cleaning npm cache..."
+    npm cache clean --force  # Clean the npm cache for fresh installation
+    echo "Running npm install..."
+    npm install  # Using npm install instead of npm ci for troubleshooting
+    echo "Listing installed packages..."
+    ls -al node_modules  # List contents of node_modules for verification
+    echo "Running npm run build..."
     npm run build
   displayName: 'Frontend - Build React Application'
 
