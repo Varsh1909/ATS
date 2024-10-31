@@ -12,7 +12,7 @@ variables:
 steps:
 - task: UseNode@1
   inputs:
-    version: '14.x'  # Keep this as it is or consider upgrading to 16.x
+    version: '14.x'  # Keep this as is or consider upgrading to 16.x
   displayName: 'Install Node.js 14.x for Frontend'
 
 # Step 1: Build Frontend
@@ -28,10 +28,25 @@ steps:
     npm run build
   displayName: 'Frontend - Build React Application'
 
-# Step 2: Deploy Frontend
-- task: AzureWebApp@1
-  inputs:
-    azureSubscription: '4cd72d6a-f9fa-4350-b5b1-2463b528b598'  # Replace with your Azure subscription name or ID
-    appName: $(FRONTEND_APP_NAME)
-    package: '$(System.DefaultWorkingDirectory)/frontend/build'
+# Step 2: Deploy Frontend using Service Principal from GitHub Secrets
+- script: |
+    # Create a JSON file from the GitHub secret
+    echo "$(AZURE_WEBAPP_PUBLISH_PROFILE)" > azure_credentials.json
+
+    # Extract credentials using jq
+    CLIENT_ID=$(jq -r '.clientId' azure_credentials.json)
+    CLIENT_SECRET=$(jq -r '.clientSecret' azure_credentials.json)
+    TENANT_ID=$(jq -r '.tenantId' azure_credentials.json)
+    SUBSCRIPTION_ID=$(jq -r '.subscriptionId' azure_credentials.json)
+
+    # Login to Azure using Service Principal
+    echo "Logging into Azure..."
+    az login --service-principal -u $CLIENT_ID -p $CLIENT_SECRET --tenant $TENANT_ID
+
+    # Set the subscription
+    az account set --subscription $SUBSCRIPTION_ID
+
+    # Deploy to Azure Web App
+    echo "Deploying to Azure Web App..."
+    az webapp deploy --name $(FRONTEND_APP_NAME) --resource-group YOUR_RESOURCE_GROUP --src-path $(System.DefaultWorkingDirectory)/frontend/build --type static
   displayName: 'Deploy Frontend to Azure Web App'
