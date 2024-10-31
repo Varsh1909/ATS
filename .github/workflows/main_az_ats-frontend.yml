@@ -1,12 +1,9 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Frontend CI/CD Pipeline
 
 on:
   push:
     branches:
-      - main_az  # Match the branch used for deployment
+      - main_az  # Trigger on specific branch push
   workflow_dispatch:
 
 jobs:
@@ -25,28 +22,25 @@ jobs:
 
       # Step 3: Install dependencies
       - name: Install dependencies
-        run: |
-          cd frontend  # Navigate to frontend directory
-          npm install  # Install Node.js dependencies
+        working-directory: frontend
+        run: npm install  # Install Node.js dependencies
 
       # Step 4: Build the frontend application
       - name: Build the app (React frontend)
-        run: |
-          cd frontend
-          npm run build
+        working-directory: frontend
+        run: npm run build
 
       # Step 5: Zip the build output for deployment
       - name: Zip the build output for deployment
-        run: |
-          cd frontend/build
-          zip -r release.zip ./*  # Zip the build directory contents
+        working-directory: frontend/build
+        run: zip -r ../release.zip ./*  # Zip the contents of the build directory
 
       # Step 6: Upload artifact for the deployment job
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build-artifact
-          path: frontend/build/release.zip  # Path to the zip file for deployment
+          path: frontend/release.zip  # Path to the zip file for deployment
 
   deploy:
     runs-on: ubuntu-latest
@@ -58,15 +52,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-build-artifact
+          path: ./downloaded_artifact  # Specify download directory
 
       # Step 2: Unzip the artifact
       - name: Unzip the artifact
-        run: unzip frontend/build/release.zip -d output  # Unzipping into the 'output' folder
+        run: unzip downloaded_artifact/frontend/release.zip -d output  # Unzipping into the 'output' folder
 
       # Step 3: Deploy the unzipped files to Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'ats-frontend'  # Replace with your Azure App Service name
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}  # The secret for the publish profile
-          package: ./output  # Path where the unzipped files are located
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}  # Publish profile secret for Azure authentication
+          package: ./output  # Path to the unzipped files
