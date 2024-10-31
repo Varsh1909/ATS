@@ -20,10 +20,10 @@ jobs:
         with:
           node-version: '20.x'  # Specify the desired Node.js version
 
-      # Step 3: Install dependencies
+      # Step 3: Install dependencies with --legacy-peer-deps to avoid conflicts
       - name: Install dependencies
         working-directory: frontend
-        run: npm install  # Install Node.js dependencies
+        run: npm install --legacy-peer-deps  # Bypass peer dependency conflicts
 
       # Step 4: Build the frontend application
       - name: Build the app (React frontend)
