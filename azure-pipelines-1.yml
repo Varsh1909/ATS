@@ -1,5 +1,5 @@
 trigger:
-- main
+- main_az  # Change to your branch name if necessary
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -7,7 +7,7 @@ pool:
 variables:
   # Azure Web App name
   FRONTEND_APP_NAME: 'ats-frontend'  # Replace with your Azure Web App for frontend
-  IMAGE_TAG: '$(Build.BuildId)'
+  PACKAGE_PATH: '$(System.DefaultWorkingDirectory)/frontend/build'  # Path to the build package
 
 steps:
 - task: UseNode@1
@@ -21,46 +21,15 @@ steps:
     echo "Cleaning npm cache..."
     npm cache clean --force  # Clean the npm cache for fresh installation
     echo "Running npm install..."
-    npm install  # Using npm install instead of npm ci for troubleshooting
-    echo "Listing installed packages..."
-    ls -al node_modules  # List contents of node_modules for verification
+    npm install  # Install dependencies
     echo "Running npm run build..."
-    npm run build
+    npm run build  # Build the frontend application
   displayName: 'Frontend - Build React Application'
 
-# Step 2: Deploy Frontend using Service Principal from GitHub Secrets
-- script: |
-    # Create a JSON file from the GitHub secret
-    echo "$(AZURE_WEBAPP_PUBLISH_PROFILE)" > azure_credentials.json
-
-    # Extract credentials using jq
-    CLIENT_ID=$(jq -r '.clientId' azure_credentials.json)
-    CLIENT_SECRET=$(jq -r '.clientSecret' azure_credentials.json)
-    TENANT_ID=$(jq -r '.tenantId' azure_credentials.json)
-    SUBSCRIPTION_ID=$(jq -r '.subscriptionId' azure_credentials.json)
-
-    # Login to Azure using Service Principal
-    echo "Logging into Azure..."
-    az login --service-principal -u $CLIENT_ID -p $CLIENT_SECRET --tenant $TENANT_ID
-
-    # Check if login was successful
-    if [ $? -ne 0 ]; then
-      echo "Failed to log into Azure. Check your credentials."
-      exit 1
-    fi
-
-    # Set the subscription
-    echo "Setting Azure subscription..."
-    az account set --subscription $SUBSCRIPTION_ID
-
-    # Deploy to Azure Web App
-    echo "Deploying to Azure Web App..."
-    az webapp deploy --name $(FRONTEND_APP_NAME) --resource-group YOUR_RESOURCE_GROUP --src-path $(System.DefaultWorkingDirectory)/frontend/build --type static
-
-    # Check if the deployment was successful
-    if [ $? -ne 0 ]; then
-      echo "Deployment failed."
-      exit 1
-    fi
-
+# Step 2: Deploy Frontend using Publish Profile
+- task: AzureWebApp@1
+  inputs:
+    appName: $(FRONTEND_APP_NAME)
+    publishProfile: $(AZURE_WEBAPP_PUBLISH_PROFILE)  # Use the secret for the publish profile
+    package: $(PACKAGE_PATH)  # Package path to deploy
   displayName: 'Deploy Frontend to Azure Web App'
