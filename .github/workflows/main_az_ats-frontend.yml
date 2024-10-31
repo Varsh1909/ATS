@@ -3,7 +3,7 @@ name: Frontend CI/CD Pipeline
 on:
   push:
     branches:
-      - main_az  # Trigger on specific branch push
+      - main_az
   workflow_dispatch:
 
 jobs:
@@ -26,16 +26,16 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      - name: Zip the build output
+      - name: Zip the build output for deployment
         run: |
           cd frontend/build
-          zip -r ../release.zip ./*
+          zip -r ${{ github.workspace }}/release.zip ./*
 
-      - name: Upload artifact for deployment
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-build
-          path: frontend/release.zip  # Adjust to match exact zip location
+          name: frontend-build-artifact
+          path: ${{ github.workspace }}/release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -44,16 +44,16 @@ jobs:
     environment: AZURE_WEBAPP_PUBLISH_PROFILE
 
     steps:
-      - name: Download build artifact
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: frontend-build
-          path: ./  # Download to root
+          name: frontend-build-artifact
+          path: ${{ github.workspace }}
 
-      - name: Unzip artifact
-        run: unzip frontend/release.zip -d output  # Adjust path if needed
+      - name: Unzip the artifact
+        run: unzip ${{ github.workspace }}/release.zip -d output
 
-      - name: Azure Login
+      - name: Log in to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -63,4 +63,4 @@ jobs:
         with:
           app-name: 'ats-frontend'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ./output  # Path to unzipped output folder
+          package: ./output
