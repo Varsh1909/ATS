@@ -32,7 +32,7 @@ jobs:
     - name: Install Dependencies
       run: |
         cd frontend
-        npm install
+        npm install --legacy-peer-deps
     
     - name: List Installed Packages
       run: |
@@ -49,7 +49,4 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./frontend/build
-    
-    # - name: Show NPM Debug Log on Failure
-    #   if: failure()
-    #   run: cat /home/runner/.npm/_logs/*.log
+        publish_branch: gh-pages  # Optional: Specify the branch for GitHub Pages
