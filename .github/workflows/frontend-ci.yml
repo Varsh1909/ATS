@@ -29,10 +29,15 @@ jobs:
     - name: Clear NPM Cache
       run: npm cache clean --force
     
+    - name: Install Missing Peer Dependency
+      run: |
+        cd frontend
+        npm install postcss-selector-parser@6.0.10 --save-exact --legacy-peer-deps
+    
     - name: Install Dependencies
       run: |
         cd frontend
-        npm install --legacy-peer-deps
+        npm install --legacy-peer-deps --no-optional
     
     - name: List Installed Packages
       run: |
