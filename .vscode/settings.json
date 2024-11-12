@@ -7,5 +7,7 @@
         "*test.py"
     ],
     "python.testing.pytestEnabled": false,
-    "python.testing.unittestEnabled": true
+    "python.testing.unittestEnabled": true,
+    "appService.defaultWebAppToDeploy": "undefined/subscriptions/4cd72d6a-f9fa-4350-b5b1-2463b528b598/resourceGroups/appsvc_linux_centralus_basic/providers/Microsoft.Web/sites/ats-f",
+    "appService.deploySubpath": "frontend"
 }

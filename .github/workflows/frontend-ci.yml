@@ -2,9 +2,9 @@ name: Frontend CI/CD Pipeline
 
 on:
   push:
-    branches: [ main_az ]
+    branches: [ main_new ]
   pull_request:
-    branches: [ main_az ]
+    branches: [ main_new ]
 
 jobs:
   build-and-deploy-frontend:
