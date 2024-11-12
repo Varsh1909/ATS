@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "https://Varsh1909.github.io/ATS",
   "dependencies": {
+    "@csstools/selector-specificity": "^2.2.0",
     "axios": "^1.7.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
