@@ -50,6 +50,6 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./frontend/build
     
-    - name: Show NPM Debug Log on Failure
-      if: failure()
-      run: cat /home/runner/.npm/_logs/*.log
+    # - name: Show NPM Debug Log on Failure
+    #   if: failure()
+    #   run: cat /home/runner/.npm/_logs/*.log
