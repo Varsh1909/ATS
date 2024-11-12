@@ -181,7 +181,7 @@ def predict_and_rank(class_model, reg_model, new_data, required_role, extracted_
     filtered_data['Classification_Prediction'] = classification_predictions
     filtered_data['Predicted_Salary'] = salary_predictions
 
-    # Sort by Classification_Prediction and Predicted_Salary
+    # Sort by Classification_Prediction and Predicted_Salary ---
     top_candidates = filtered_data.sort_values(['Classification_Prediction', 'Predicted_Salary'], ascending=[False, False]).head(top_n)
 
     desired_fields = [
