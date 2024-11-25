@@ -1,57 +1,109 @@
+# name: CI/CD
+
+# on:
+#   push:
+#     branches: [ main_new ]
+#   pull_request:
+#     branches: [ main_new ]
+
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+    
+#     steps:
+#     - uses: actions/checkout@v2
+    
+#     - name: Set up Node.js
+#       uses: actions/setup-node@v2
+#       with:
+#         node-version: '14'
+    
+#     - name: Cache Node.js modules
+#       uses: actions/cache@v2
+#       with:
+#         path: frontend/node_modules
+#         key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+#         restore-keys: |
+#           ${{ runner.os }}-node-
+    
+#     - name: Clear NPM Cache
+#       run: npm cache clean --force
+    
+#     - name: Install Missing Peer Dependency
+#       run: |
+#         cd frontend
+#         npm install postcss-selector-parser@6.0.10 --save-exact --legacy-peer-deps
+#         npm install styled-components@^5.3.9 @xstyled/styled-components@^3.7.3
+    
+#     - name: Install Dependencies
+#       run: |
+#         cd frontend
+#         npm install --legacy-peer-deps --no-optional
+    
+#     - name: List Installed Packages
+#       run: |
+#         cd frontend
+#         npm list --depth=0
+    
+#     - name: Build
+#       run: |
+#         cd frontend
+#         npm run build
+    
+#     - name: Deploy to GitHub Pages
+#       uses: peaceiris/actions-gh-pages@v3
+#       with:
+#         github_token: ${{ secrets.GITHUB_TOKEN }}
+#         publish_dir: ./frontend/build
+#         publish_branch: gh-pages  # Optional: Specify the branch for GitHub Pages
+
+
 name: CI/CD
 
 on:
   push:
-    branches: [ main_new ]
+    branches: [main_new]
   pull_request:
-    branches: [ main_new ]
+    branches: [main_new]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
-    
-    - name: Cache Node.js modules
-      uses: actions/cache@v2
-      with:
-        path: frontend/node_modules
-        key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-    
-    - name: Clear NPM Cache
-      run: npm cache clean --force
-    
-    - name: Install Missing Peer Dependency
-      run: |
-        cd frontend
-        npm install postcss-selector-parser@6.0.10 --save-exact --legacy-peer-deps
-    
-    - name: Install Dependencies
-      run: |
-        cd frontend
-        npm install --legacy-peer-deps --no-optional
-    
-    - name: List Installed Packages
-      run: |
-        cd frontend
-        npm list --depth=0
-    
-    - name: Build
-      run: |
-        cd frontend
-        npm run build
-    
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./frontend/build
-        publish_branch: gh-pages  # Optional: Specify the branch for GitHub Pages
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: |
+          npm install -g npm@latest
+          npm install --legacy-peer-deps
+          npm install @shadcn/ui --save-dev --legacy-peer-deps
+          npm install postcss-selector-parser@6.0.10 --save-exact --legacy-peer-deps
+
+      - name: List installed packages
+        working-directory: ./frontend
+        run: npm list --depth=0
+
+      - name: Build
+        working-directory: ./frontend
+        run: |
+          npm run build
+        env:
+          CI: false
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main_new'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./frontend/build
+          publish_branch: gh-pages
