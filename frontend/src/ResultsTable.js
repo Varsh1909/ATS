@@ -148,7 +148,7 @@ export default function ResultsTable({ results = [] }) {
   return (
     <div className="h-screen flex flex-col p-4 gap-4">
       {/* Search Input */}
-      <div className="flex items-center gap-2">
+      {/* <div className="flex items-center gap-2">
         <Search className="w-4 h-4 text-gray-500" />
         <input
           type="text"
@@ -157,7 +157,7 @@ export default function ResultsTable({ results = [] }) {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-80 p-2 border rounded-md"
         />
-      </div>
+      </div> */}
 
       {/* Candidates Table */}
       <div className="flex-1 border rounded-lg overflow-hidden">

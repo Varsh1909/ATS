@@ -126,7 +126,7 @@
 
 #     return clf, reg
 
-# def predict_and_rank(class_model, reg_model, new_data, required_role, extracted_skills, top_n=5, min_experience=None, max_experience=None, mandatory_skills=None, optional_skills=None):
+# def predict_and_rank(class_model, reg_model, new_data, required_role, extracted_skills, top_n=5, max_experience=None, min_experience=None, mandatory_skills=None, optional_skills=None):
 #     def filter_candidates(df, role):
 #         return df[df['profile_title'].str.contains(role, case=False, na=False)]
 
@@ -147,12 +147,11 @@
 #     filtered_data['skills'] = filtered_data['skills'].astype(str)
 
 #     # Apply experience filter
-#     if min_experience is not None and max_experience is not None:
-#         filtered_data = filtered_data[(filtered_data['experience'] >= min_experience) & (filtered_data['experience'] <= max_experience)]
-#     elif min_experience is not None:
-#         filtered_data = filtered_data[filtered_data['experience'] >= min_experience]
-#     elif max_experience is not None:
+#     if max_experience is not None:
 #         filtered_data = filtered_data[filtered_data['experience'] <= max_experience]
+#     if min_experience is not None:
+#         filtered_data = filtered_data[filtered_data['experience'] >= min_experience]
+
 
 #     # Check for mandatory and optional skills
 #     if mandatory_skills:
@@ -179,25 +178,20 @@
 #         filtered_data['Job_Role_Skill_Category'] = required_role
 
 #     X_new = filtered_data[['skills', 'experience', 'Job_Role_Skill_Category']]
-    
-#     try:
-#         classification_predictions = class_model.predict(X_new)
-#         salary_predictions = reg_model.predict(X_new)
-#     except Exception as e:
-#         print(f"Error during prediction: {e}")
-#         return None
+#     classification_predictions = class_model.predict(X_new)
+#     salary_predictions = reg_model.predict(X_new)
 
 #     filtered_data['Classification_Prediction'] = classification_predictions
 #     filtered_data['Predicted_Salary'] = salary_predictions
 
-#     # Sort by Classification_Prediction and Predicted_Salary
+#     # Sort by Classification_Prediction and Predicted_Salary ---
 #     top_candidates = filtered_data.sort_values(['Classification_Prediction', 'Predicted_Salary'], ascending=[False, False]).head(top_n)
 
 #     desired_fields = [
-#         'candidate_id', 'full_name', 'email', 'experience',
+#         'id', 'full_name', 'email', 'experience',
 #         'profile_title', 'source_name', 'date', 'Classification_Prediction',
 #         'Predicted_Salary', 'skills', 'has_mandatory_skills', 'has_optional_skills',
-#         'work_authorization', 'city', 'state', 'willing_to_relocate'
+#         'work_authorization','city','state','willing_to_relocate'
 #     ]
 
 #     available_fields = [field for field in desired_fields if field in top_candidates.columns]
@@ -205,7 +199,7 @@
 #     # Extract top 5 skills for each candidate
 #     def extract_top_skills(skills_str, n=5):
 #         skills = skills_str.split(',')
-#         return ','.join(skills[:n]).strip()
+#         return ','.join(skills[:n])
 
 #     top_candidates['skills'] = top_candidates['skills'].apply(extract_top_skills)
 
@@ -216,17 +210,10 @@
 #     try:
 #         data = request.json
 #         required_role = data.get('requiredRole')
-#         if not required_role:
-#             return jsonify({"error": "requiredRole is required"}), 400
-            
 #         top_n = int(data.get('topN', 5))
 #         main_data_file_path = data.get('mainDataFilePath')
 #         job_roles_data_file_path = data.get('jobRolesDataFilePath')
 #         test_data_file_path = data.get('testDataFilePath')
-        
-#         if not all([main_data_file_path, job_roles_data_file_path, test_data_file_path]):
-#             return jsonify({"error": "All file paths are required"}), 400
-            
 #         start_date_str = data.get('startDate')
 #         end_date_str = data.get('endDate')
 #         max_experience = data.get('maxExperience')
@@ -236,14 +223,15 @@
 
 #         print(f"Processing request for role: {required_role}, top {top_n} candidates")
 #         print(f"Date filter: Start Date = {start_date_str}, End Date = {end_date_str}")
-#         print(f"Experience range: {min_experience} - {max_experience}")
+#         print(f"Max Experience: {max_experience}")
+#         print(f"Min Experience: {min_experience}")
 #         print(f"Mandatory Skills: {mandatory_skills}")
 #         print(f"Optional Skills: {optional_skills}")
 
 #         main_df = load_and_prepare_data(main_data_file_path)
 #         job_roles_df = load_and_prepare_data(job_roles_data_file_path, is_job_roles=True)
 #         if main_df is None or job_roles_df is None:
-#             return jsonify({"error": "Failed to load main or job roles data"}), 500
+#             return jsonify({"error": "Failed to load main or job roles data."}), 500
 
 #         main_df = engineer_features(main_df)
 #         job_roles_df = engineer_features(job_roles_df)
@@ -254,69 +242,57 @@
 
 #         new_df = load_and_prepare_data(test_data_file_path, parse_dates=True)
 #         if new_df is None:
-#             return jsonify({"error": "Failed to load test data"}), 500
+#             return jsonify({"error": "Failed to load test data."}), 500
 
 #         if 'date' not in new_df.columns:
-#             return jsonify({"error": "Test data must contain a 'date' column"}), 400
+#             return jsonify({"error": "Test data must contain a 'date' column."}), 400
 
-#         # Date filtering
+#         apply_date_filter = False
 #         if start_date_str and end_date_str:
+#             apply_date_filter = True
 #             try:
 #                 start_date = pd.to_datetime(start_date_str)
 #                 end_date = pd.to_datetime(end_date_str)
-#                 if start_date > end_date:
-#                     return jsonify({"error": "startDate cannot be after endDate"}), 400
-                
-#                 new_df['date'] = pd.to_datetime(new_df['date'], errors='coerce')
-#                 before_filter_count = len(new_df)
-#                 new_df = new_df[(new_df['date'] >= start_date) & (new_df['date'] <= end_date)]
-#                 after_filter_count = len(new_df)
-#                 print(f"Filtered test data from {before_filter_count} to {after_filter_count} records based on date")
-                
-#                 if new_df.empty:
-#                     return jsonify({"error": "No candidates found within the specified date range"}), 404
 #             except Exception as e:
 #                 return jsonify({"error": f"Invalid date format: {e}"}), 400
+#             if start_date > end_date:
+#                 return jsonify({"error": "'startDate' cannot be after 'endDate'."}), 400
 #         elif start_date_str or end_date_str:
-#             return jsonify({"error": "Both startDate and endDate must be provided if filtering by date"}), 400
+#             return jsonify({"error": "Both 'startDate' and 'endDate' must be provided if filtering by date."}), 400
+
+#         if apply_date_filter:
+#             new_df['date'] = pd.to_datetime(new_df['date'], errors='coerce')
+#             before_filter_count = len(new_df)
+#             new_df = new_df[(new_df['date'] >= start_date) & (new_df['date'] <= end_date)]
+#             after_filter_count = len(new_df)
+#             print(f"Filtered test data from {before_filter_count} to {after_filter_count} records based on date.")
+#             if new_df.empty:
+#                 return jsonify({"error": "No candidates found within the specified date range."}), 404
+#         else:
+#             print("No date filter applied.")
 
 #         new_df = engineer_features(new_df)
-        
-#         # Experience filtering
-#         try:
-#             if min_experience is not None:
-#                 min_experience = float(min_experience)
-#                 new_df = new_df[new_df['experience'] >= min_experience]
-#             if max_experience is not None:
-#                 max_experience = float(max_experience)
-#                 new_df = new_df[new_df['experience'] <= max_experience]
-#         except ValueError:
-#             return jsonify({"error": "Invalid experience value"}), 400
-            
-#         if new_df.empty:
-#             return jsonify({"error": "No candidates found matching the experience criteria"}), 404
-        
 #         results = predict_and_rank(
 #             trained_class_model, trained_reg_model, new_df, required_role,
-#             extracted_skills, top_n, min_experience, max_experience, mandatory_skills, optional_skills
+#             extracted_skills, top_n, max_experience, min_experience, mandatory_skills, optional_skills
 #         )
 
 #         if results is not None and not results.empty:
 #             if 'date' in results.columns:
 #                 results['date'] = results['date'].dt.strftime('%Y-%m-%d')
-#             return jsonify(results.to_dict(orient='records'))
+#             results_dict = results.to_dict(orient='records')
+#             return jsonify(results_dict)
 #         else:
-#             return jsonify({"error": "No matching candidates found"}), 404
+#             return jsonify({"error": "No results found or an error occurred"}), 404
 
 #     except Exception as e:
 #         print(f"Unexpected error: {e}")
 #         traceback.print_exc()
-#         return jsonify({"error": str(e)}), 500
+#         return jsonify({"error": "An unexpected error occurred."}), 500
 
 # if __name__ == "__main__":
 #     app.run(host="0.0.0.0", port=5000)
 
-import argparse
 import pandas as pd
 import numpy as np
 import sys
@@ -336,18 +312,24 @@ warnings.filterwarnings("ignore", category=FutureWarning, module='sklearn')
 
 app = Flask(__name__)
 
-def load_and_prepare_data(file_path, is_job_roles=False, parse_dates=False):
+def load_and_prepare_data(data, is_job_roles=False, parse_dates=False):
     try:
-        if parse_dates:
-            df = pd.read_csv(file_path, on_bad_lines='skip', parse_dates=['date'])
+        # Convert input to DataFrame if it's not already
+        if not isinstance(data, pd.DataFrame):
+            df = pd.DataFrame(data)
         else:
-            df = pd.read_csv(file_path, on_bad_lines='skip')
+            df = data.copy()
+
+        # Handle date parsing if needed
+        if parse_dates and 'date' in df.columns:
+            df['date'] = pd.to_datetime(df['date'], errors='coerce')
+
     except Exception as e:
-        print(f"Error reading CSV file '{file_path}': {e}")
+        print(f"Error preparing data: {e}")
         return None
 
     df = df.dropna().reset_index(drop=True)
-    print(f"Missing values in {file_path}:\n", df.isnull().sum())
+    print(f"Missing values:\n", df.isnull().sum())
 
     if not is_job_roles:
         skills_column = next((col for col in df.columns if col.lower() == 'skills'), None)
@@ -367,7 +349,7 @@ def load_and_prepare_data(file_path, is_job_roles=False, parse_dates=False):
         else:
             raise ValueError("'skills' column is required in the job roles data.")
 
-    print(f"\nColumns in '{file_path}':")
+    print("\nColumns:")
     print(df.columns)
     print("\nColumn data types:")
     print(df.dtypes)
@@ -470,7 +452,6 @@ def predict_and_rank(class_model, reg_model, new_data, required_role, extracted_
     if min_experience is not None:
         filtered_data = filtered_data[filtered_data['experience'] >= min_experience]
 
-
     # Check for mandatory and optional skills
     if mandatory_skills:
         filtered_data['has_mandatory_skills'] = filtered_data['skills'].apply(
@@ -502,14 +483,14 @@ def predict_and_rank(class_model, reg_model, new_data, required_role, extracted_
     filtered_data['Classification_Prediction'] = classification_predictions
     filtered_data['Predicted_Salary'] = salary_predictions
 
-    # Sort by Classification_Prediction and Predicted_Salary ---
+    # Sort by Classification_Prediction and Predicted_Salary
     top_candidates = filtered_data.sort_values(['Classification_Prediction', 'Predicted_Salary'], ascending=[False, False]).head(top_n)
 
     desired_fields = [
         'id', 'full_name', 'email', 'experience',
         'profile_title', 'source_name', 'date', 'Classification_Prediction',
         'Predicted_Salary', 'skills', 'has_mandatory_skills', 'has_optional_skills',
-        'work_authorization','city','state','willing_to_relocate'
+        'work_authorization', 'city', 'state', 'willing_to_relocate'
     ]
 
     available_fields = [field for field in desired_fields if field in top_candidates.columns]
@@ -529,9 +510,9 @@ def rank_candidates():
         data = request.json
         required_role = data.get('requiredRole')
         top_n = int(data.get('topN', 5))
-        main_data_file_path = data.get('mainDataFilePath')
-        job_roles_data_file_path = data.get('jobRolesDataFilePath')
-        test_data_file_path = data.get('testDataFilePath')
+        main_data_file_path = data.get('mainDataFilePath', './skills_and_salaries_categories_p.csv')
+        job_roles_data_file_path = data.get('jobRolesDataFilePath', './job_skills.csv')
+        test_data = data.get('testData')
         start_date_str = data.get('startDate')
         end_date_str = data.get('endDate')
         max_experience = data.get('maxExperience')
@@ -546,8 +527,10 @@ def rank_candidates():
         print(f"Mandatory Skills: {mandatory_skills}")
         print(f"Optional Skills: {optional_skills}")
 
-        main_df = load_and_prepare_data(main_data_file_path)
-        job_roles_df = load_and_prepare_data(job_roles_data_file_path, is_job_roles=True)
+        # Load main and job roles data from CSV
+        main_df = load_and_prepare_data(pd.read_csv(main_data_file_path))
+        job_roles_df = load_and_prepare_data(pd.read_csv(job_roles_data_file_path), is_job_roles=True)
+        
         if main_df is None or job_roles_df is None:
             return jsonify({"error": "Failed to load main or job roles data."}), 500
 
@@ -555,10 +538,12 @@ def rank_candidates():
         job_roles_df = engineer_features(job_roles_df)
         extracted_skills = extract_skills_from_training_data(main_df, job_roles_df)
         trained_class_model, trained_reg_model = train_models(main_df, job_roles_df)
+        
         if trained_class_model is None or trained_reg_model is None:
             return jsonify({"error": "Failed to train models"}), 500
 
-        new_df = load_and_prepare_data(test_data_file_path, parse_dates=True)
+        # Load test data from request
+        new_df = load_and_prepare_data(test_data, parse_dates=True)
         if new_df is None:
             return jsonify({"error": "Failed to load test data."}), 500
 
@@ -569,21 +554,27 @@ def rank_candidates():
         if start_date_str and end_date_str:
             apply_date_filter = True
             try:
-                start_date = pd.to_datetime(start_date_str)
-                end_date = pd.to_datetime(end_date_str)
+                # Convert start and end dates to UTC
+                start_date = pd.to_datetime(start_date_str).tz_localize('UTC')
+                end_date = pd.to_datetime(end_date_str).tz_localize('UTC')
             except Exception as e:
                 return jsonify({"error": f"Invalid date format: {e}"}), 400
+            
             if start_date > end_date:
                 return jsonify({"error": "'startDate' cannot be after 'endDate'."}), 400
         elif start_date_str or end_date_str:
             return jsonify({"error": "Both 'startDate' and 'endDate' must be provided if filtering by date."}), 400
 
         if apply_date_filter:
-            new_df['date'] = pd.to_datetime(new_df['date'], errors='coerce')
+            # Ensure the date column is timezone-aware (UTC)
+            if new_df['date'].dt.tz is None:
+                new_df['date'] = new_df['date'].dt.tz_localize('UTC')
+            
             before_filter_count = len(new_df)
             new_df = new_df[(new_df['date'] >= start_date) & (new_df['date'] <= end_date)]
             after_filter_count = len(new_df)
             print(f"Filtered test data from {before_filter_count} to {after_filter_count} records based on date.")
+            
             if new_df.empty:
                 return jsonify({"error": "No candidates found within the specified date range."}), 404
         else:

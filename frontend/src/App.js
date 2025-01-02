@@ -12,10 +12,6 @@ const App = () => {
   return (
     <div className={darkMode ? 'App dark-mode' : 'App light-mode'}>
       <header className="App-header">
-        <h1>Candidate Ranking System</h1>
-        <button className="toggle-btn" onClick={toggleMode}>
-          Switch to {darkMode ? 'Light' : 'Dark'} Mode
-        </button>
         <CandidateRanking />
       </header>
     </div>

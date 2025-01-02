@@ -1,171 +1,300 @@
-/* General styles for the app */
-.App {
-  text-align: center;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  font-size: 16px;
-  font-family: 'Arial', sans-serif;
-  padding: 20px;
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Dark mode specific styles */
+/* App container */
+.App {
+  min-height: 100vh;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+/* Main container */
+.main-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header styles */
+.App-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.App-header h1 {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+/* Dark/Light mode styles */
 .dark-mode {
-  background-color: #282c34;
-  color: rgb(62, 204, 230);
+  background-color: #ffffff;
+  color: #ff6a11;
 }
 
 .light-mode {
-  background-color: #f9f9f9;
-  color: #333;
+  background-color: #ffffff;
+  color: #ff6a11;
 }
 
-/* Styling for header */
-.App-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 40px;
-}
-
-/* Toggle button for dark/light mode */
+/* Toggle button */
 .toggle-btn {
-  background-color: #61dafb;
+  background-color: #00597c;
   border: none;
   padding: 8px 16px;
   border-radius: 5px;
-  color: white;
+  color: #000000;
   font-size: 14px;
-  margin-bottom: 20px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .toggle-btn:hover {
-  background-color: #21a1f1;
+  background-color: #67823a;
 }
 
-/* Input fields */
-input[type="text"],
-input[type="number"] {
+/* Content layout */
+.content-wrapper {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+/* Form section */
+.form-section {
+  flex: 0 0 400px;
+  background-color: #00597c;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Results section */
+.results-section {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Search container */
+.search-container {
   width: 100%;
-  max-width: 400px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-bottom: 15px;
-  font-size: 14px;
-  transition: border-color 0.3s ease;
+  padding: 10px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-input[type="text"]:focus,
-input[type="number"]:focus {
-  border-color: #61dafb;
-  outline: none;
+.search-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #59074e;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Table wrapper */
+.table-wrapper {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  max-height: 630px;
+  overflow-y: auto;
+}
+
+/* Form styles */
+form {
+  width: 100%;
 }
 
 label {
-  font-weight: bold;
-  margin-bottom: 5px;
   display: block;
-  text-align: left;
+  margin-bottom: 5px;
+  color: white;
+  font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #59074e;
+  border-radius: 4px;
   font-size: 14px;
 }
 
-/* Form button */
 button[type="submit"] {
-  background-color: #4CAF50;
+  width: 100%;
+  background-color: #ff6a12;
   color: white;
+  padding: 10px;
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 4px;
   font-size: 14px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 button[type="submit"]:hover {
-  background-color: #45a049;
+  background-color: #59074e;
 }
 
 button[type="submit"]:disabled {
-  background-color: #ccc;
+  background-color: #ff6a11;
   cursor: not-allowed;
 }
 
-/* Form container */
-form {
-  width: 100%;
-  max-width: 400px;
-  padding: 20px;
-  margin: 0 auto;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Table styling */
+/* Table styles */
 table {
   width: 100%;
-  max-width: 800px;
   border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 10px;
 }
 
 th {
-  background-color: #61dafb;
-  color: white;
+  background-color: #ff6a11;
+  color: #00597c;
+  padding: 12px;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid #59074e;
 }
 
 tr:nth-child(even) {
-  background-color: #f2f2f2;
+  background-color: #ffffff;
 }
 
 tr:nth-child(odd) {
-  background-color: #e0e0e0;
-}
-
-tr:hover {
-  background-color: #ddd;
-}
-
-/* Dark mode table adjustments */
-.dark-mode table {
+  background-color: #ffffff;
   color: white;
 }
 
-.dark-mode th {
-  background-color: #444;
+tr:hover {
+  background-color: #00597c;
+  color: white;
+}
+
+/* Status messages */
+.loading,
+.error,
+.no-results {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.error {
+  color: #ff6a11;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+
+  .form-section {
+    flex: none;
+    width: 100%;
+    max-height: 630px;
+  }
+
+  .results-section {
+    width: 100%;
+  }
+
+  .table-wrapper {
+    max-height: 500px;
+  }
+}
+
+/* Additional form field styles */
+.mandatory-skills,
+.optional-skills {
+  margin-bottom: 20px;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.skill-tag {
+  background-color: #67823a;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.skill-tag button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Add skill button */
+.add-skill-btn {
+  background-color: #67823a;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.add-skill-btn:hover {
+  background-color: #59074e;
+}
+
+/* Dark mode specific table styles */
+.dark-mode .table-wrapper {
+  background-color: #ffffff;
+}
+
+.dark-mode table th {
+  background-color: #ffffff;
+  color: #ff6a11;
+}
+
+.dark-mode table td {
+  border-bottom-color: #ffffff;
 }
 
 .dark-mode tr:nth-child(even) {
-  background-color: #333;
+  background-color: #ffffff;
+  color: #59074e;
 }
 
 .dark-mode tr:nth-child(odd) {
-  background-color: #3a3a3a;
+  background-color: #ffffff;
+  color: #59074e;
 }
 
 .dark-mode tr:hover {
-  background-color: #555;
-}
-
-/* Center the table in the container */
-table {
-  margin: 20px auto;
-}
-
-h1,
-h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
+  background-color: #67823a;
 }
